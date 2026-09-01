@@ -2,8 +2,8 @@
    1) Put your Supabase URL and anon key below.
    2) Never put a Supabase service_role key in this file.
 */
-const SUPABASE_URL = "PASTE_YOUR_SUPABASE_URL";
-const SUPABASE_ANON_KEY = "PASTE_YOUR_SUPABASE_ANON_KEY";
+const SUPABASE_URL = "https://uwjxhndufchjrtdifwpn.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_YRlYu4OkEtIFiXy8uYFP2g_FB3x6IQV";
 const configured = !SUPABASE_URL.includes("PASTE_") && !SUPABASE_ANON_KEY.includes("PASTE_");
 const sb = configured ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
