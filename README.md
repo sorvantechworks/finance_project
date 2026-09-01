@@ -1,40 +1,65 @@
-# ClearPath Final V1
+# ClearPath Cloud V2
 
-A complete browser-based personal finance planner for the first usable release.
+This version replaces browser-only storage with Supabase Authentication + PostgreSQL + Row Level Security.
 
-## Included
-- Local profile/login UI
-- Dashboard
-- Month selector
-- Monthly income
-- Essential living expenses
-- Multiple loans with balance, EMI and interest rate
-- 3× EMI reference
-- Chits
-- Temporary family/friend debts
-- Repayment recording
-- Activity history
-- Basic monthly financial planning logic
-- Responsive desktop/mobile interface
-- Browser persistence
+## What is included
+- Real email/password sign-in
+- Proper sign out
+- Cloud-saved financial data
+- Per-user data isolation through Supabase RLS
+- Income, living costs, loans, chits, temporary debts and payment history
+- Basic monthly planning logic
+- Responsive redesigned UI
+- Fixed card/grid sizing for desktop and mobile
+- Existing V1 financial concepts retained
 
-## Basic planning logic
-1. Income is entered for the selected month.
-2. Living expenses, EMI and chit contributions are treated as mandatory monthly commitments.
-3. Free cash = income - living expenses - EMI - chits.
-4. A basic 10% income buffer is suggested.
-5. If free cash is negative, the app recommends no extra debt payment.
-6. If free cash is tight, it recommends preserving the buffer.
-7. Temporary debts receive a small suggested installment based on available cash.
-8. If the remaining cash after the buffer and temporary-debt allowance can cover 2× the largest EMI, the app flags that a 3× EMI total payment may fit.
-9. Otherwise it shows the available extra-payment pool instead of forcing a 3× EMI payment.
+## Setup
 
-This is intentionally a simple planning model, not professional financial advice. We can change the rules later.
+### 1. Create a Supabase project
+Create a project at supabase.com.
 
-## Important storage limitation
-This version stores information in browser localStorage. The login is a local profile UI, not real secure authentication. Do not use it as a secure system for sensitive financial records.
+### 2. Run the database schema
+Open Supabase SQL Editor and run `supabase_schema.sql` completely.
 
-## Hosting
-The project is static HTML/CSS/JS and can be deployed to Vercel Drop. Put `index.html` at the project root.
+### 3. Add your public Supabase credentials
+Open `script.js` and replace:
+SUPABASE_URL = "PASTE_YOUR_SUPABASE_URL"
+SUPABASE_ANON_KEY = "PASTE_YOUR_SUPABASE_ANON_KEY"
 
-For future updates while keeping one permanent URL, connect the project to GitHub and then connect that repository to Vercel.
+Use the project's public anon/publishable key only.
+NEVER use the service_role/secret key in this website.
+
+### 4. Authentication
+In Supabase Authentication settings, enable Email/Password.
+
+For simple testing, you can turn off email confirmation, or leave it on and have the friend confirm the email.
+
+To give your friend an account, create it from the Supabase Authentication dashboard or let her use "Create account". If you create the account yourself, you can give her the temporary password you chose. The website will never expose or display a user's password.
+
+### 5. Deploy to the existing Vercel project
+Upload/replace:
+- index.html
+- styles.css
+- script.js
+- supabase_schema.sql (for your reference; it does not need to be publicly served)
+
+Commit/push the website files to the GitHub repository connected to your existing Vercel project.
+
+Existing project URL:
+https://finance-project-lime-nine.vercel.app/
+
+## Important security note
+The anon/publishable Supabase key is intended for browser use when RLS is configured correctly. The service_role/secret key is NOT safe in frontend code.
+
+The user can know the friend's initial account email and temporary password if the user creates the account, but the password should not be recoverable from ClearPath after that. Supabase password-reset/change should be used if it is forgotten.
+
+## Data model
+Every row has a user_id and RLS allows a signed-in user to access only their own rows.
+
+## Financial model
+Free cash = income - living costs - loan EMIs - chit contributions.
+A 10% income buffer is protected.
+Temporary debt gets a small suggested share of free cash.
+A 3× EMI suggestion is shown only when the remaining free cash can support it; normal EMI is already included, so the extra accelerated portion is 2× EMI.
+
+This is a planning model, not professional financial advice.

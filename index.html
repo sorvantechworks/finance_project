@@ -1,160 +1,87 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ClearPath — Personal Finance Planner</title>
-<link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ClearPath — Personal Finance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<div id="loginScreen" class="login-screen">
-  <div class="login-card">
-    <div class="logo">CP</div>
-    <p class="eyebrow">PERSONAL FINANCE</p>
-    <h1>ClearPath</h1>
-    <p class="muted">A simple personal portfolio for income, living costs, loans, chits and temporary debts.</p>
-    <form id="loginForm">
-      <label>Email<input id="loginEmail" type="email" required placeholder="you@example.com"></label>
-      <label>Password<input id="loginPassword" type="password" required minlength="4" placeholder="••••••••"></label>
-      <button class="primary full" type="submit">Enter ClearPath</button>
-    </form>
-    <p class="tiny">Frontend V1: profile data is stored in this browser. This is not secure cloud authentication yet.</p>
+  <div id="authScreen" class="auth-screen">
+    <div class="auth-orb orb-a"></div><div class="auth-orb orb-b"></div>
+    <div class="auth-card">
+      <div class="brand auth-brand"><span class="brand-mark">C</span><span>ClearPath</span></div>
+      <div id="authLogin">
+        <p class="eyebrow">PERSONAL FINANCE</p>
+        <h1>Make your money feel simpler.</h1>
+        <p class="auth-copy">Track income, essentials, debt and commitments in one private workspace.</p>
+        <form id="loginForm" class="stack">
+          <label>Email<input id="loginEmail" type="email" autocomplete="email" required placeholder="you@example.com"></label>
+          <label>Password<input id="loginPassword" type="password" autocomplete="current-password" required placeholder="Your password"></label>
+          <button class="btn primary full" type="submit">Sign in</button>
+        </form>
+        <button class="text-btn" id="showSignup">Create account</button>
+        <p id="authError" class="form-error"></p>
+      </div>
+      <div id="authSignup" class="hidden">
+        <p class="eyebrow">NEW ACCOUNT</p>
+        <h2>Create your ClearPath account</h2>
+        <form id="signupForm" class="stack">
+          <label>Name<input id="signupName" required placeholder="Your name"></label>
+          <label>Email<input id="signupEmail" type="email" required placeholder="you@example.com"></label>
+          <label>Password<input id="signupPassword" type="password" minlength="6" required placeholder="At least 6 characters"></label>
+          <button class="btn primary full" type="submit">Create account</button>
+        </form>
+        <button class="text-btn" id="showLogin">Back to sign in</button>
+        <p id="signupError" class="form-error"></p>
+      </div>
+      <p class="auth-note">Your financial records are tied to your account, not this browser.</p>
+    </div>
   </div>
-</div>
 
-<div id="app" class="hidden">
-  <aside class="sidebar" id="sidebar">
-    <div class="brand-row"><div class="logo small">CP</div><div><b>ClearPath</b><small>Personal Finance</small></div></div>
-    <nav>
-      <button class="nav active" data-page="dashboard">⌂ <span>Dashboard</span></button>
-      <button class="nav" data-page="income">↗ <span>Income</span></button>
-      <button class="nav" data-page="expenses">▤ <span>Living expenses</span></button>
-      <button class="nav" data-page="loans">▣ <span>Loans & EMIs</span></button>
-      <button class="nav" data-page="chits">◈ <span>Chits</span></button>
-      <button class="nav" data-page="debts">↔ <span>Temporary debts</span></button>
-      <button class="nav" data-page="activity">≡ <span>Activity</span></button>
-    </nav>
-    <div class="side-bottom">
-      <button class="nav" data-page="settings">⚙ <span>Settings</span></button>
-      <button class="nav" id="logoutBtn">↪ <span>Log out</span></button>
-    </div>
-  </aside>
+  <div id="app" class="app hidden">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand"><span class="brand-mark">C</span><span>ClearPath</span></div>
+      <div class="user-chip"><div class="avatar" id="avatar">F</div><div><strong id="sideName">Friend</strong><small id="sideEmail"></small></div></div>
+      <nav>
+        <button data-page="dashboard" class="nav-item active"><span>⌂</span>Overview</button>
+        <button data-page="income" class="nav-item"><span>↗</span>Income</button>
+        <button data-page="expenses" class="nav-item"><span>▤</span>Living costs</button>
+        <button data-page="loans" class="nav-item"><span>◈</span>Loans</button>
+        <button data-page="chits" class="nav-item"><span>◌</span>Chits</button>
+        <button data-page="debts" class="nav-item"><span>↔</span>Temporary debts</button>
+        <button data-page="activity" class="nav-item"><span>◷</span>Activity</button>
+        <button data-page="settings" class="nav-item"><span>⚙</span>Settings</button>
+      </nav>
+      <button id="logoutBtn" class="logout-btn"><span>↪</span> Sign out</button>
+    </aside>
 
-  <main class="main">
-    <header class="topbar">
-      <div class="mobile-brand"><button id="menuBtn" class="icon-btn">☰</button><b>ClearPath</b></div>
-      <div><p id="sectionLabel" class="eyebrow">OVERVIEW</p><h2 id="pageHeading">Your financial picture</h2></div>
-      <div class="top-right"><select id="monthSelect" class="month-select"></select><div id="avatar" class="avatar">F</div></div>
-    </header>
+    <main class="main">
+      <header class="topbar">
+        <button class="mobile-menu" id="mobileMenu">☰</button>
+        <div><span class="top-kicker">PERSONAL WORKSPACE</span><h2 id="pageTitle">Overview</h2></div>
+        <div class="top-actions"><select id="monthSelect"></select><button class="icon-btn" id="quickAdd">＋</button></div>
+      </header>
 
-    <div class="content">
-      <section id="dashboard" class="page active">
-        <div class="intro-row">
-          <div><p class="eyebrow">MONTHLY OVERVIEW</p><h1 id="hello">Good evening.</h1><p class="muted">See your complete monthly position before deciding on extra debt payments.</p></div>
-          <button class="primary" data-page="income">＋ Update income</button>
-        </div>
-
-        <div class="stats">
-          <div class="stat"><span>Income</span><strong id="mIncome">$0</strong><small>This month</small></div>
-          <div class="stat"><span>Living expenses</span><strong id="mLiving">$0</strong><small>Essential costs</small></div>
-          <div class="stat"><span>EMIs + chits</span><strong id="mCommit">$0</strong><small>Mandatory commitments</small></div>
-          <div class="stat dark"><span>Free cash</span><strong id="mFree">$0</strong><small>Before extra payments</small></div>
-        </div>
-
-        <div class="grid-2">
-          <article class="panel">
-            <div class="panel-title"><div><p class="eyebrow">MONTHLY PLAN</p><h3 id="planTitle">Add your numbers</h3></div><span id="statusPill" class="pill neutral">Waiting</span></div>
-            <div id="planList"></div>
-          </article>
-          <article class="panel">
-            <div class="panel-title"><div><p class="eyebrow">DEBT POSITION</p><h3>Portfolio snapshot</h3></div></div>
-            <div id="snapshot"></div>
-          </article>
-        </div>
-
-        <article class="panel">
-          <div class="panel-title"><div><p class="eyebrow">CASH FLOW</p><h3>Monthly allocation</h3></div></div>
-          <div class="allocation">
-            <div><div><span>Living</span><b id="aLivingPct">0%</b></div><div class="track"><i id="aLiving"></i></div></div>
-            <div><div><span>EMIs</span><b id="aEmiPct">0%</b></div><div class="track"><i id="aEmi"></i></div></div>
-            <div><div><span>Chits</span><b id="aChitPct">0%</b></div><div class="track"><i id="aChit"></i></div></div>
-            <div><div><span>Free cash</span><b id="aFreePct">0%</b></div><div class="track"><i id="aFree"></i></div></div>
-          </div>
-        </article>
+      <section class="content">
+        <div id="page-dashboard" class="page active"></div>
+        <div id="page-income" class="page"></div>
+        <div id="page-expenses" class="page"></div>
+        <div id="page-loans" class="page"></div>
+        <div id="page-chits" class="page"></div>
+        <div id="page-debts" class="page"></div>
+        <div id="page-activity" class="page"></div>
+        <div id="page-settings" class="page"></div>
       </section>
+    </main>
+  </div>
 
-      <section id="income" class="page">
-        <div class="page-intro"><p class="eyebrow">INCOME</p><h1>Monthly income</h1><p class="muted">Enter the amount you realistically expect to receive for the selected month.</p></div>
-        <article class="panel">
-          <form id="incomeForm" class="form-grid">
-            <label>Expected income<input id="incomeAmount" type="number" min="0" step=".01" required></label>
-            <label>Currency<select id="currency"><option value="$">USD — $</option><option value="₹">INR — ₹</option></select></label>
-            <label>Income source / note<input id="incomeNote" placeholder="e.g. Part-time wages"></label>
-            <div></div>
-            <button class="primary" type="submit">Save income</button>
-          </form>
-        </article>
-      </section>
-
-      <section id="expenses" class="page">
-        <div class="page-intro"><p class="eyebrow">LIVING EXPENSES</p><h1>Essential monthly costs</h1><p class="muted">Keep survival costs separate from loans and financial commitments.</p></div>
-        <article class="panel">
-          <div class="form-grid">
-            <label>Rent<input id="rent" type="number" min="0" step=".01"></label>
-            <label>Food<input id="food" type="number" min="0" step=".01"></label>
-            <label>Travel / transport<input id="travel" type="number" min="0" step=".01"></label>
-            <label>Phone / internet<input id="phone" type="number" min="0" step=".01"></label>
-            <label>Miscellaneous<input id="misc" type="number" min="0" step=".01"></label>
-            <label>Other essentials<input id="other" type="number" min="0" step=".01"></label>
-          </div>
-          <div class="form-footer"><div><span>Total essentials</span><strong id="expenseTotal">$0</strong></div><button id="saveExpenses" class="primary">Save expenses</button></div>
-        </article>
-      </section>
-
-      <section id="loans" class="page">
-        <div class="page-intro"><p class="eyebrow">LOANS & EMIS</p><h1>Loans</h1><p class="muted">Track each loan and see what a 3× EMI payment would mean for that loan.</p></div>
-        <div class="toolbar"><span id="loanCount">0 loans</span><button id="addLoan" class="primary">＋ Add loan</button></div>
-        <div id="loanList" class="list"></div>
-      </section>
-
-      <section id="chits" class="page">
-        <div class="page-intro"><p class="eyebrow">CHITS</p><h1>Chits & recurring commitments</h1><p class="muted">Track monthly chit contributions separately from living expenses.</p></div>
-        <div class="toolbar"><span id="chitCount">0 chits</span><button id="addChit" class="primary">＋ Add chit</button></div>
-        <div id="chitList" class="list"></div>
-      </section>
-
-      <section id="debts" class="page">
-        <div class="page-intro"><p class="eyebrow">TEMPORARY DEBTS</p><h1>People who helped</h1><p class="muted">Record short-term help and repay it in manageable installments.</p></div>
-        <div class="toolbar"><span id="debtCount">0 debts</span><button id="addDebt" class="primary">＋ Add debt</button></div>
-        <div id="debtList" class="list"></div>
-      </section>
-
-      <section id="activity" class="page">
-        <div class="page-intro"><p class="eyebrow">ACTIVITY</p><h1>History</h1><p class="muted">Every important update and repayment recorded in the browser.</p></div>
-        <article class="panel"><div id="activityList"></div></article>
-      </section>
-
-      <section id="settings" class="page">
-        <div class="page-intro"><p class="eyebrow">SETTINGS</p><h1>Profile & preferences</h1><p class="muted">Basic settings for this frontend version.</p></div>
-        <article class="panel settings">
-          <div class="profile"><div id="settingsAvatar" class="avatar big">F</div><div><h3 id="profileName">Friend</h3><p id="profileEmail" class="muted">—</p></div></div>
-          <div class="setting"><div><b>Currency</b><p class="muted">Used for all calculations and displays.</p></div><select id="settingsCurrency"><option value="$">USD — $</option><option value="₹">INR — ₹</option></select></div>
-          <div class="setting"><div><b>Storage</b><p class="muted">Current version saves information in this browser only.</p></div><span class="pill neutral">Local</span></div>
-        </article>
-      </section>
-    </div>
-  </main>
-</div>
-
-<div id="toast" class="toast"></div>
-
-<dialog id="modal">
-<form id="modalForm" method="dialog">
-  <div class="modal-head"><div><p id="modalEyebrow" class="eyebrow">NEW ITEM</p><h3 id="modalTitle">Add item</h3></div><button type="button" id="closeModal" class="icon-btn">×</button></div>
-  <div id="modalFields"></div>
-  <div class="modal-actions"><button type="button" id="cancelModal" class="secondary">Cancel</button><button class="primary">Save</button></div>
-</form>
-</dialog>
-<script src="script.js"></script>
+  <div id="modal" class="modal hidden"><div class="modal-backdrop"></div><div class="modal-card"><button class="modal-close" id="modalClose">×</button><div id="modalBody"></div></div></div>
+  <div id="toast"></div>
+  <script src="script.js"></script>
 </body>
 </html>
